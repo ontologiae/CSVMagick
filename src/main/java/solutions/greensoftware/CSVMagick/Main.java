@@ -10,18 +10,10 @@ import org.supercsv.io.ICsvListReader;
 import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CsvContext;
 
-
-import org.javatuples.Pair;
-
-import javax.swing.text.html.Option;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.*;
 
 public class Main {
 
@@ -35,13 +27,13 @@ public class Main {
     }
 
 
-    public Optional<Triplet<CsvPreference,Integer,List<DirtyTextGessOMatic.DataType>>> guessCsvTypeAndColumns(String filePath) throws IOException {
+    public Optional<Triplet<CsvPreference, Integer, List<DirtyTextGessOMatic.DataType>>> guessCsvTypeAndColumns(String filePath) throws IOException {
         // On renvoi la 1ère analyse du CSV : nombre de colonne, type de CSV, et liste de type de colonne à confirmer
-        CsvPreference prefs[] = new CsvPreference[] {
-            CsvPreference.TAB_PREFERENCE,
-            CsvPreference.STANDARD_PREFERENCE,
-            CsvPreference.EXCEL_PREFERENCE,
-            CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE
+        CsvPreference prefs[] = new CsvPreference[]{
+                CsvPreference.TAB_PREFERENCE,
+                CsvPreference.STANDARD_PREFERENCE,
+                CsvPreference.EXCEL_PREFERENCE,
+                CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE
         };
 
         CsvPreference findGoodCsvType;
@@ -55,10 +47,10 @@ public class Main {
 
 
         FileReader finalFileReader = fileReader;
-        var goodPrefs = Arrays.stream(prefs).filter(e -> {
-            CsvListReader listReader = new CsvListReader(finalFileReader, e);
+        Optional<CsvPreference> goodPrefs = Arrays.stream(prefs).filter(e -> {
+                    CsvListReader listReader = new CsvListReader(finalFileReader, e);
                     try {
-                        var header = listReader.getHeader(true);
+                        String[] header = listReader.getHeader(true);
                         return (listReader.read() != null && (listReader.length() > 1));
                     } catch (IOException ioException) {
                         ioException.printStackTrace();
@@ -71,27 +63,31 @@ public class Main {
 
             int cpt = 0;
             ICsvListReader listReader = null;
+            int max = 0;
+            List<DirtyTextGessOMatic.DataType> guessedTypes = new ArrayList<>();
             try {
                 listReader = new CsvListReader(fileReader, goodPrefs.get());
 
                 listReader.getHeader(true); // skip the header (can't be used with CsvListReader)
                 List<String> csvLine = new LinkedList<String>();
-                int max = 0;
                 while ((csvLine = listReader.read()) != null && cpt < 128) { // on ne lit que 128 lignes
                     cpt++;
                     max = Math.max(listReader.length(), max);
 
                     //TODO algo qui fait la synthèse de type sur les 128 lignes d'échantillon
                     int idx = (int) (Math.random() * max);
-                    if (DirtyTextGessOMatic.guesser(csvLine.get(idx)) != DirtyTextGessOMatic.DataType.NULLVAl)
-                        System.out.println(max + ";" + idx + ";" + csvLine.get(idx) + ";" + DirtyTextGessOMatic.guesser(csvLine.get(idx)));
+                    DirtyTextGessOMatic.DataType guess = DirtyTextGessOMatic.guesser(csvLine.get(idx));
+                    if (guess != DirtyTextGessOMatic.DataType.NULLVAl) {
+                        System.out.println(max + ";" + idx + ";" + csvLine.get(idx) + ";" + guess);
+                        guessedTypes.add(guess);
+                    }
                 }
             } finally {
                 if (listReader != null) {
                     listReader.close();
                 }
             }
-            return Optional.of(Triplet.with(goodPrefs.get(),max,// TODO: 16/09/2020  ))
+            return Optional.of(Triplet.with(goodPrefs.get(), max, guessedTypes));// TODO: 16/09/2020  ))
         } else return Optional.empty();
     }
 
