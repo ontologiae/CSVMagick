@@ -19,8 +19,14 @@ public class Main {
 
     public static void main(String[] args) {
         // write your code here
+        // /Users/ontologiae/Documents/Projets/NAINWAK/Nainwak/Events.csv - Dump postgresql
+        //"/Users/ontologiae/Documents/Projets/CODE-ANALYSIS/ReposCodePourTest/metasfresh/de.metas.adempiere.adempiere/client/target/test-classes/org/compiere/apps/form/fileimport/regularlines.csv"
+        String fileName = "/Users/ontologiae/Downloads/municipales_2020.csv";
+        if (args.length > 0) {
+            fileName = args[0];
+        }
         try {
-            readVariableColumnsWithCsvListReader();
+            readVariableColumnsWithCsvListReader(fileName);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -91,7 +97,7 @@ public class Main {
         } else return Optional.empty();
     }
 
-    private static void readVariableColumnsWithCsvListReader() throws Exception {
+    private static void readVariableColumnsWithCsvListReader(String fileName) throws Exception {
 
         final CellProcessor[] allProcessors = new CellProcessor[]{new UniqueHashCode(), // customerNo (must be unique)
                 new NotNull(), // firstName
@@ -115,9 +121,7 @@ public class Main {
         //CellProcessor cellDateValidator = (CellProcessor) new ParseDate("dd/MM/yyyy").execute("25/12/2011", ANONYMOUS_CSVCONTEXT);
         try {
             listReader = new CsvListReader(new FileReader(
-                    // /Users/ontologiae/Documents/Projets/NAINWAK/Nainwak/Events.csv - Dump postgresql
-                    //"/Users/ontologiae/Documents/Projets/CODE-ANALYSIS/ReposCodePourTest/metasfresh/de.metas.adempiere.adempiere/client/target/test-classes/org/compiere/apps/form/fileimport/regularlines.csv"
-                    "/Users/ontologiae/Downloads/municipales_2020.csv"
+                    fileName
             ),
                     CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE);
 
