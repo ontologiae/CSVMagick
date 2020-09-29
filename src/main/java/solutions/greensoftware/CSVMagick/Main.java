@@ -120,14 +120,10 @@ public class Main {
         ICsvListReader listReader = null;
         //CellProcessor cellDateValidator = (CellProcessor) new ParseDate("dd/MM/yyyy").execute("25/12/2011", ANONYMOUS_CSVCONTEXT);
         try {
-            listReader = new CsvListReader(new FileReader(
-                    fileName
-            ),
-                    CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE);
+            listReader = new CsvListReader(new FileReader(fileName), CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE);
 
             listReader.getHeader(true); // skip the header (can't be used with CsvListReader)
             List<String> csvLine = new LinkedList<String>();
-            int max = 0;
             //System.out.println(csvLine);
             //final CellProcessor[] processors;
             /*                if( listReader.length() == noBirthDateProcessors.length ) {
@@ -138,13 +134,15 @@ public class Main {
             //final List<Object> customerList = listReader.executeProcessors(processors);
             //System.out.println(String.format("lineNo=%s, rowNo=%s, columns=%s, customerList=%s",
             //        listReader.getLineNumber(), listReader.getRowNumber(), customerList.size(), customerList));
+            int maxColumn = Integer.MIN_VALUE;
             while ((csvLine = listReader.read()) != null) {
-                max = Math.max(listReader.length(), max);
-                int idx = (int) (Math.random() * max);
-                if (DirtyTextGessOMatic.guesser(csvLine.get(idx)) != DirtyTextGessOMatic.DataType.NULLVAl)
-                    System.out.println(max + ";" + idx + ";" + csvLine.get(idx) + ";" + DirtyTextGessOMatic.guesser(csvLine.get(idx)));
+                int line = listReader.getLineNumber();
+                int column = line % listReader.length();
+                maxColumn = Math.max(maxColumn, column);
+                if (DirtyTextGessOMatic.guesser(csvLine.get(column)) != DirtyTextGessOMatic.DataType.NULLVAl)
+                    System.out.println(line + ";" + column + ";" + csvLine.get(column) + ";" + DirtyTextGessOMatic.guesser(csvLine.get(column)));
             }
-            System.out.println(String.format("%d colonnes max", max));
+            System.out.println(String.format("%d colonnes max", maxColumn));
 
         } finally {
             if (listReader != null) {
