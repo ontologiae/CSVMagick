@@ -83,7 +83,7 @@ public class Main {
                     //TODO algo qui fait la synthèse de type sur les 128 lignes d'échantillon
                     int idx = (int) (Math.random() * max);
                     DirtyTextGessOMatic.DataType guess = DirtyTextGessOMatic.guesser(csvLine.get(idx));
-                    if (guess != DirtyTextGessOMatic.DataType.NULLVAl) {
+                    if (guess != DirtyTextGessOMatic.DataType.NULLVAL) {
                         System.out.println(max + ";" + idx + ";" + csvLine.get(idx) + ";" + guess);
                         guessedTypes.add(guess);
                     }
@@ -139,7 +139,7 @@ public class Main {
                 int line = listReader.getLineNumber();
                 int column = line % listReader.length();
                 maxColumn = Math.max(maxColumn, column);
-                if (DirtyTextGessOMatic.guesser(csvLine.get(column)) != DirtyTextGessOMatic.DataType.NULLVAl)
+                if (DirtyTextGessOMatic.guesser(csvLine.get(column)) != DirtyTextGessOMatic.DataType.NULLVAL)
                     System.out.println(line + ";" + column + ";" + csvLine.get(column) + ";" + DirtyTextGessOMatic.guesser(csvLine.get(column)));
             }
             System.out.println(String.format("%d colonnes max", maxColumn));

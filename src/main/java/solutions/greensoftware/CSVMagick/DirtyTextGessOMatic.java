@@ -1,13 +1,13 @@
 package solutions.greensoftware.CSVMagick;
 
 
-import java.util.Arrays;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 public class DirtyTextGessOMatic {
 
     public enum DataType {
-        DATETYP, INTTYP, DOUBLEFLOAT, TIMESTAMP, TEXTTYP, CHARTYP, BOOLTYP, NULLVAl
+        DATETYP, INTTYP, DOUBLEFLOAT, TIMESTAMP, TEXTTYP, CHARTYP, BOOLTYP, NULLVAL
     }
 
     static final int datetyp = 0;
@@ -30,31 +30,36 @@ public class DirtyTextGessOMatic {
     };
 
     static DataType guesser(String input) {
-        DataType res;
-        if (input != null) {
-            Boolean[] matched = Arrays.stream(regexs).map(e -> e.matcher(input).find()).toArray(Boolean[]::new);
-
-            if (matched[datetyp]) {
-                res = DataType.DATETYP;
-            } else if (matched[timestamp]) {
-                res = DataType.TIMESTAMP;
-            } else if (matched[chartyp]) {
-                res = DataType.CHARTYP;
-            } else if (matched[booltyp]) {
-                res = DataType.BOOLTYP;
-            } else if (matched[doublefloat]) {
-                res = DataType.DOUBLEFLOAT;
-            } else if (matched[inttyp]) {
-                res = DataType.INTTYP;
-            } else if (matched[texttyp]) {
-                res = DataType.TEXTTYP;
-            } else {
-                res = DataType.NULLVAl;
-            }
-        } else {
-            res = DataType.NULLVAl;
+        // Fast fail here
+        if (input == null) {
+            return DataType.NULLVAL;
         }
 
-        return res;
+        // Retrieve indices of regexs to use it in a switch instead of a list of if statements
+        Integer[] matched = IntStream.range(0, regexs.length).filter(i -> regexs[i].matcher(input).find()).boxed().toArray(Integer[]::new);
+
+        // Fast fail here
+        if (matched.length == 0) {
+            return DataType.NULLVAL;
+        }
+
+        switch (matched[0]) {
+            case datetyp:
+                return DataType.DATETYP;
+            case timestamp:
+                return DataType.TIMESTAMP;
+            case chartyp:
+                return DataType.CHARTYP;
+            case booltyp:
+                return DataType.BOOLTYP;
+            case doublefloat:
+                return DataType.DOUBLEFLOAT;
+            case inttyp:
+                return DataType.INTTYP;
+            case texttyp:
+                return DataType.TEXTTYP;
+            default:
+                return DataType.NULLVAL;
+        }
     }
 }
